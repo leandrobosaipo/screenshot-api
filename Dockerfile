@@ -1,5 +1,5 @@
 # Usar uma imagem base com suporte a Python e dependências do Playwright
-FROM mcr.microsoft.com/playwright/python:v1.41.0-jammy
+FROM mcr.microsoft.com/playwright/python:v1.42.0-jammy
 
 # Definir variáveis de ambiente
 ENV PYTHONDONTWRITEBYTECODE=1
