@@ -1,0 +1,35 @@
+{
+  "services": [
+    {
+      "type": "app",
+      "data": {
+        "projectName": "screenshot-api",
+        "serviceName": "screenshot-api",
+        "source": {
+          "type": "image",
+          "image": "ghcr.io/leandrobosaipo/screenshot-api:latest"
+        },
+        "ports": [
+          {
+            "published": 8000,
+            "target": 8000
+          }
+        ],
+        "env": [
+          {
+            "name": "PYTHONDONTWRITEBYTECODE",
+            "value": "1"
+          },
+          {
+            "name": "PYTHONUNBUFFERED",
+            "value": "1"
+          },
+          {
+            "name": "TZ",
+            "value": "America/Sao_Paulo"
+          }
+        ]
+      }
+    }
+  ]
+} 
