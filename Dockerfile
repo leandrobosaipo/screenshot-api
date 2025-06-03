@@ -1,14 +1,15 @@
 # Usa uma imagem base do Python
 FROM python:3.11-slim
 
-# Define o diretório de trabalho
-WORKDIR /app
-
-# Instala as dependências do sistema necessárias
+# Instala dependências do sistema
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
+    netcat-traditional \
     && rm -rf /var/lib/apt/lists/*
+
+# Define o diretório de trabalho
+WORKDIR /app
 
 # Instala o Node.js (necessário para o Playwright)
 RUN wget -qO- https://deb.nodesource.com/setup_18.x | bash - \
@@ -23,6 +24,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Instala o Playwright e seus navegadores
 RUN playwright install chromium
+RUN playwright install-deps
 
 # Copia o resto do código
 COPY . .
@@ -46,4 +48,4 @@ COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
 # Comando para iniciar a aplicação
-CMD ["/start.sh"] 
+CMD ["./start.sh"] 
