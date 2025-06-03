@@ -4,6 +4,13 @@ FROM python:3.11-slim
 # Define o diretório de trabalho
 WORKDIR /app
 
+# Define as variáveis de ambiente padrão
+ENV REDIS_USER=default
+ENV REDIS_PASSWORD=ABF93E2D72196575E616CB41A49EE
+ENV REDIS_HOST=criadordigital_redis
+ENV REDIS_PORT=6379
+ENV CACHE_DIR=/tmp/screenshot_cache
+
 # Instala as dependências do sistema
 RUN apt-get update && apt-get install -y \
     wget \

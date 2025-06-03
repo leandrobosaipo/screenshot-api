@@ -4,12 +4,21 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Configuração do Redis
+REDIS_USER = os.getenv('REDIS_USER', 'default')
+REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', 'ABF93E2D72196575E616CB41A49EE')
+REDIS_HOST = os.getenv('REDIS_HOST', 'criadordigital_redis')
+REDIS_PORT = os.getenv('REDIS_PORT', '6379')
+
+# URL de conexão do Redis
+REDIS_URL = f"redis://{REDIS_USER}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
+
 # Configuração do Celery
 celery_app = Celery(
     'screenshot_tasks',
-    broker=os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
-    backend=os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
-    include=['main']  # Adiciona esta linha para incluir as tarefas do main.py
+    broker=REDIS_URL,
+    backend=REDIS_URL,
+    include=['main']
 )
 
 # Configurações do Celery
