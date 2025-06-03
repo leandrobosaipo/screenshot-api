@@ -1,25 +1,43 @@
-# Usar uma imagem base com suporte a Python e dependências do Playwright
-FROM mcr.microsoft.com/playwright/python:v1.42.0-jammy
+# Usa a imagem oficial do Python
+FROM python:3.11-slim
 
-# Definir variáveis de ambiente
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV TZ=America/Sao_Paulo
-
-# Definir diretório de trabalho
+# Define o diretório de trabalho
 WORKDIR /app
 
-# Copiar arquivos de requisitos
+# Instala as dependências do sistema
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instala o Node.js (necessário para o Playwright)
+RUN wget -qO- https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copia os arquivos de requisitos
 COPY requirements.txt .
 
-# Instalar dependências Python
+# Instala as dependências Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar o código da aplicação
+# Instala o Playwright e seus navegadores
+RUN playwright install chromium \
+    && playwright install-deps
+
+# Copia o código da aplicação
 COPY . .
 
-# Expor a porta
+# Cria o diretório de cache
+RUN mkdir -p /tmp/screenshot_cache \
+    && chmod 777 /tmp/screenshot_cache
+
+# Expõe a porta da aplicação
 EXPOSE 8000
 
+# Script de inicialização
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
 # Comando para iniciar a aplicação
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"] 
+CMD ["/start.sh"] 
