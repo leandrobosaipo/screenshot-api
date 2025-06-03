@@ -1,0 +1,75 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Python files
+*.py text diff=python
+
+# Shell scripts
+*.sh text eol=lf
+
+# YAML files
+*.{yml,yaml} text
+
+# JSON files
+*.json text
+
+# Markdown files
+*.md text diff=markdown
+
+# Documentation
+LICENSE text
+CHANGELOG.md text
+README.md text diff=markdown
+
+# Configuration files
+.env.example text
+.editorconfig text
+.pre-commit-config.yaml text
+pyproject.toml text
+setup.cfg text
+MANIFEST.in text
+.gitattributes text
+.gitignore text
+
+# Docker files
+Dockerfile text
+docker-compose.yml text
+.dockerignore text
+
+# Makefile
+Makefile text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.tar.gz binary
+*.tar.bz2 binary
+*.tar.xz binary
+*.rar binary
+*.7z binary
+*.pdf binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.otf binary
+*.mp3 binary
+*.mp4 binary
+*.webm binary
+*.wav binary
+*.ogg binary
+*.flac binary
+*.mov binary
+*.avi binary
+*.mkv binary
+*.iso binary
+*.img binary
+*.bin binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary 

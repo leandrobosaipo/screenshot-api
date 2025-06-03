@@ -1,3 +1,7 @@
+# Git
+.git
+.gitignore
+
 # Python
 __pycache__/
 *.py[cod]
@@ -46,12 +50,15 @@ logs/
 
 # Docker
 .docker/
+Dockerfile
+docker-compose.yml
+.dockerignore
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Project specific
-credentials.txt
-redis.conf
-notion_template.md 
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE 

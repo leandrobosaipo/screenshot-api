@@ -34,11 +34,16 @@ RUN mkdir -p /tmp/screenshot_cache && chmod 777 /tmp/screenshot_cache
 EXPOSE 8000
 
 # Define as variáveis de ambiente padrão
-ENV REDIS_HOST=localhost
-ENV REDIS_PORT=6379
-ENV REDIS_USER=default
-ENV REDIS_PASSWORD=ABF93E2D72196575E616CB41A49EE
-ENV CACHE_DIR=/tmp/screenshot_cache
+# Estas serão sobrescritas pelo docker-compose.yml em produção
+ENV REDIS_HOST=localhost \
+    REDIS_PORT=6379 \
+    REDIS_USER=default \
+    REDIS_PASSWORD=ABF93E2D72196575E616CB41A49EE \
+    CACHE_DIR=/tmp/screenshot_cache
+
+# Script de inicialização
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 # Comando para iniciar a aplicação
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"] 
+CMD ["/start.sh"] 

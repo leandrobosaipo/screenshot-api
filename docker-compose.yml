@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: criadordigital_redis
+    command: redis-server --requirepass ABF93E2D72196575E616CB41A49EE
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - screenshot_network
+    restart: unless-stopped
+
+  api:
+    build: .
+    container_name: screenshot_api
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=criadordigital_redis
+      - REDIS_PORT=6379
+      - REDIS_USER=default
+      - REDIS_PASSWORD=ABF93E2D72196575E616CB41A49EE
+      - CACHE_DIR=/tmp/screenshot_cache
+    volumes:
+      - screenshot_cache:/tmp/screenshot_cache
+    depends_on:
+      - redis
+    networks:
+      - screenshot_network
+    restart: unless-stopped
+
+  worker:
+    build: .
+    container_name: screenshot_worker
+    command: ["/start.sh", "worker"]
+    environment:
+      - REDIS_HOST=criadordigital_redis
+      - REDIS_PORT=6379
+      - REDIS_USER=default
+      - REDIS_PASSWORD=ABF93E2D72196575E616CB41A49EE
+      - CACHE_DIR=/tmp/screenshot_cache
+    volumes:
+      - screenshot_cache:/tmp/screenshot_cache
+    depends_on:
+      - redis
+      - api
+    networks:
+      - screenshot_network
+    restart: unless-stopped
+
+networks:
+  screenshot_network:
+    driver: bridge
+
+volumes:
+  redis_data:
+  screenshot_cache: 
