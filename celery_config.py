@@ -7,7 +7,7 @@ load_dotenv()
 # Configuração do Redis
 REDIS_USER = os.getenv('REDIS_USER', 'default')
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', 'ABF93E2D72196575E616CB41A49EE')
-REDIS_HOST = os.getenv('REDIS_HOST', 'criadordigital_redis')
+REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')  # Alterado para localhost como padrão
 REDIS_PORT = os.getenv('REDIS_PORT', '6379')
 
 # URL de conexão do Redis
@@ -37,13 +37,15 @@ celery_app.conf.update(
     broker_heartbeat=10,  # Reduz frequência de heartbeat
     task_acks_late=True,  # Confirma tarefas apenas após conclusão
     task_reject_on_worker_lost=True,  # Rejeita tarefas se worker morrer
-    broker_connection_retry_on_startup=True  # Adiciona esta linha para resolver o warning
+    broker_connection_retry_on_startup=True,  # Adiciona esta linha para resolver o warning
+    broker_connection_retry=True,  # Tenta reconectar se perder conexão
+    broker_connection_max_retries=10  # Número máximo de tentativas de reconexão
 )
 
 # Configurações de cache
 CACHE_DIR = os.getenv('CACHE_DIR', '/tmp/screenshot_cache')
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-# Limite de cache para 2GB (considerando outros serviços)
-MAX_CACHE_SIZE = 2 * 1024 * 1024 * 1024  # 2GB em bytes
-CACHE_EXPIRY = 12 * 60 * 60  # 12 horas em segundos 
+# Limite de cache para 1GB (considerando outros serviços)
+MAX_CACHE_SIZE = 1024 * 1024 * 1024  # 1GB em bytes
+CACHE_EXPIRY = 24 * 60 * 60  # 24 horas em segundos 

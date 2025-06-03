@@ -31,17 +31,26 @@ env/
 *.swp
 *.swo
 
-# OS
+# Logs
+*.log
+logs/
+
+# Cache
+/tmp/screenshot_cache/
+.cache/
+
+# Environment variables
+.env
+.env.*
+
+# Docker
+.docker/
+
+# System
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
 # Project specific
-/tmp/screenshot_cache/
 credentials.txt
 redis.conf
 notion_template.md 

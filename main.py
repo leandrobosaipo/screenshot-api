@@ -71,7 +71,8 @@ def capture_screenshot_task(
     quality: int,
     wait_until: str,
     wait_for_images_flag: bool,
-    scroll_page_flag: bool
+    scroll_page_flag: bool,
+    no_cache: bool = False
 ) -> str:
     """Tarefa Celery para capturar screenshot."""
     try:
@@ -80,6 +81,10 @@ def capture_screenshot_task(
         import time
         
         cache_path = get_cache_path(url, view, full_page)
+        
+        # Se no_cache for True, remove o arquivo de cache se existir
+        if no_cache and os.path.exists(cache_path):
+            os.remove(cache_path)
         
         # Usa a versão síncrona do Playwright para a tarefa Celery
         with sync_playwright() as p:
@@ -338,7 +343,8 @@ async def get_screenshot(
     quality: Optional[int] = 80,
     wait_until: Literal["load", "domcontentloaded", "networkidle"] = "networkidle",
     wait_for_images_flag: bool = True,
-    scroll_page_flag: bool = True
+    scroll_page_flag: bool = True,
+    no_cache: bool = False
 ) -> Response:
     """Endpoint para capturar screenshot de uma URL."""
     # Valida os parâmetros
@@ -359,15 +365,16 @@ async def get_screenshot(
             detail="Tempo de espera não pode ser negativo"
         )
     
-    # Verifica cache
-    cache_path = get_cache_path(url, view, full_page)
-    if os.path.exists(cache_path):
-        if time.time() - os.path.getmtime(cache_path) < CACHE_EXPIRY:
-            async with aiofiles.open(cache_path, 'rb') as f:
-                return Response(
-                    content=await f.read(),
-                    media_type="image/jpeg"
-                )
+    # Verifica cache apenas se no_cache for False
+    if not no_cache:
+        cache_path = get_cache_path(url, view, full_page)
+        if os.path.exists(cache_path):
+            if time.time() - os.path.getmtime(cache_path) < CACHE_EXPIRY:
+                async with aiofiles.open(cache_path, 'rb') as f:
+                    return Response(
+                        content=await f.read(),
+                        media_type="image/jpeg"
+                    )
     
     # Agenda limpeza de cache em background
     background_tasks.add_task(cleanup_old_cache)
@@ -382,7 +389,8 @@ async def get_screenshot(
         quality=quality,
         wait_until=wait_until,
         wait_for_images_flag=wait_for_images_flag,
-        scroll_page_flag=scroll_page_flag
+        scroll_page_flag=scroll_page_flag,
+        no_cache=no_cache
     )
     
     return JSONResponse({
