@@ -1,5 +1,5 @@
 from typing import Literal, Optional
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends
 from fastapi.responses import Response, JSONResponse
 from playwright.async_api import async_playwright
 import io
@@ -10,6 +10,16 @@ from datetime import datetime, timedelta
 import aiofiles
 from celery_config import celery_app, CACHE_DIR
 import shutil
+import logging
+import redis
+from redis.exceptions import RedisError
+
+# Configuração de logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Screenshot API",
@@ -26,6 +36,15 @@ VIEWPORT_CONFIGS = {
 # Configurações de cache
 CACHE_EXPIRY = 24 * 60 * 60  # 24 horas em segundos
 MAX_CACHE_SIZE = 1024 * 1024 * 1024  # 1GB em bytes
+
+# Cliente Redis
+redis_client = redis.Redis(
+    host=os.getenv('REDIS_HOST', 'localhost'),
+    port=int(os.getenv('REDIS_PORT', 6379)),
+    username=os.getenv('REDIS_USER', 'default'),
+    password=os.getenv('REDIS_PASSWORD', 'ABF93E2D72196575E616CB41A49EE'),
+    decode_responses=True
+)
 
 def get_cache_path(url: str, view: str, full_page: bool) -> str:
     """Gera um caminho único para o cache baseado nos parâmetros."""
@@ -421,6 +440,48 @@ async def get_screenshot_status(task_id: str) -> Response:
         "status": "processing",
         "task_id": task_id
     })
+
+@app.get("/health")
+async def health_check():
+    """Endpoint para verificar a saúde da aplicação."""
+    try:
+        # Verifica conexão com Redis
+        redis_client.ping()
+        
+        # Verifica diretório de cache
+        if not os.path.exists(CACHE_DIR):
+            os.makedirs(CACHE_DIR, exist_ok=True)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status": "healthy",
+                "redis": "connected",
+                "cache": "available",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        )
+    except RedisError as e:
+        logger.error(f"Erro na conexão com Redis: {str(e)}")
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "unhealthy",
+                "redis": "disconnected",
+                "error": str(e),
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        )
+    except Exception as e:
+        logger.error(f"Erro no health check: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "unhealthy",
+                "error": str(e),
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        )
 
 if __name__ == "__main__":
     import uvicorn

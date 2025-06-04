@@ -70,6 +70,47 @@ REDIS_PASSWORD=ABF93E2D72196575E616CB41A49EE
 CACHE_DIR=/tmp/screenshot_cache
 ```
 
+### Configuração no EasyPanel
+
+1. Crie uma nova aplicação no EasyPanel:
+   - Nome: screenshot-api
+   - Tipo: Docker
+   - Imagem: ghcr.io/leandrobosaipo/screenshot-api:latest
+
+2. Configure as variáveis de ambiente:
+   ```
+   REDIS_HOST=redis
+   REDIS_PORT=6379
+   REDIS_USER=default
+   REDIS_PASSWORD=seu_senha_redis
+   CACHE_DIR=/tmp/screenshot_cache
+   PYTHONDONTWRITEBYTECODE=1
+   PYTHONUNBUFFERED=1
+   TZ=America/Sao_Paulo
+   ```
+
+3. Configure o Redis:
+   - Crie um novo serviço Redis no EasyPanel
+   - Configure a senha do Redis
+   - Certifique-se que a rede está configurada corretamente
+
+4. Configure o comando de inicialização:
+   ```
+   ./start.sh api
+   ```
+
+5. Configure o healthcheck:
+   - Endpoint: /health
+   - Intervalo: 30s
+   - Timeout: 10s
+   - Retries: 3
+   - Start Period: 40s
+
+6. Configure o worker (em um serviço separado):
+   - Use a mesma imagem
+   - Configure as mesmas variáveis de ambiente
+   - Use o comando: `./start.sh worker`
+
 ### Ambiente de Produção (VPS)
 
 1. Instale o Docker e Docker Compose:
@@ -170,6 +211,11 @@ curl -X POST "http://localhost:8000/screenshot" \
 curl "http://localhost:8000/screenshot/status/{task_id}"
 ```
 
+### Verificar Saúde da API
+```bash
+curl "http://localhost:8000/health"
+```
+
 ## Endpoints
 
 ### POST /screenshot
@@ -188,6 +234,9 @@ Captura um screenshot de uma URL.
 
 ### GET /screenshot/status/{task_id}
 Verifica o status de uma tarefa de captura.
+
+### GET /health
+Verifica a saúde da aplicação e suas dependências.
 
 ## Cache
 
@@ -259,6 +308,13 @@ chmod -R 777 /tmp/screenshot_cache
 docker-compose exec api chmod -R 777 /tmp/screenshot_cache
 ```
 
+### Problemas no EasyPanel
+1. Verifique os logs da aplicação no EasyPanel
+2. Verifique se o Redis está acessível
+3. Verifique se as variáveis de ambiente estão configuradas corretamente
+4. Verifique se o healthcheck está passando
+5. Verifique se o worker está rodando em um serviço separado
+
 ## Contribuindo
 
 1. Faça um fork do projeto
@@ -276,4 +332,6 @@ docker-compose exec api chmod -R 777 /tmp/screenshot_cache
 - Documentação atualizada com novos parâmetros e configurações
 - Melhorias no sistema de cache com limite de tamanho
 - Suporte a diferentes eventos de carregamento de página
-- Melhor tratamento de erros e reconexão com Redis 
+- Melhor tratamento de erros e reconexão com Redis
+- Adição de endpoint de health check
+- Documentação específica para EasyPanel 

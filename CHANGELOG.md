@@ -5,6 +5,30 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.0.2] - 2024-06-03
+
+### Adicionado
+- Endpoint de health check para monitoramento
+- Sistema de logs mais robusto em todos os componentes
+- Configuração específica para EasyPanel
+- Healthcheck no Dockerfile
+- Melhor tratamento de erros e reconexão com Redis
+- Documentação detalhada para implantação no EasyPanel
+
+### Corrigido
+- Problemas de inicialização no EasyPanel
+- Configuração do comando de inicialização no Dockerfile
+- Permissões do diretório de cache
+- Verificação de disponibilidade do Redis
+- Configurações de retry do Celery
+
+### Alterado
+- Otimização do script de inicialização (start.sh)
+- Melhorias nas configurações do Celery para produção
+- Atualização da documentação com instruções específicas
+- Ajustes nas configurações de cache
+- Melhorias no sistema de logs
+
 ## [1.0.1] - 2024-06-03
 
 ### Adicionado

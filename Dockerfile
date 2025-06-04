@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
     netcat-traditional \
+    redis-tools \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Define o diretório de trabalho
@@ -29,23 +31,28 @@ RUN playwright install-deps
 # Copia o resto do código
 COPY . .
 
-# Cria o diretório de cache
-RUN mkdir -p /tmp/screenshot_cache && chmod 777 /tmp/screenshot_cache
+# Cria o diretório de cache e configura permissões
+RUN mkdir -p /tmp/screenshot_cache && \
+    chmod 777 /tmp/screenshot_cache && \
+    chown -R nobody:nogroup /tmp/screenshot_cache
 
 # Expõe a porta da aplicação
 EXPOSE 8000
 
 # Define as variáveis de ambiente padrão
-# Estas serão sobrescritas pelo docker-compose.yml em produção
-ENV REDIS_HOST=localhost \
+ENV REDIS_HOST=redis \
     REDIS_PORT=6379 \
     REDIS_USER=default \
-    REDIS_PASSWORD=ABF93E2D72196575E616CB41A49EE \
-    CACHE_DIR=/tmp/screenshot_cache
+    CACHE_DIR=/tmp/screenshot_cache \
+    PYTHONUNBUFFERED=1
 
 # Script de inicialização
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
 # Comando para iniciar a aplicação
-CMD ["./start.sh"] 
+CMD ["./start.sh", "api"] 

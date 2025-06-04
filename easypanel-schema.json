@@ -25,7 +25,35 @@
       {
         "name": "TZ",
         "value": "America/Sao_Paulo"
+      },
+      {
+        "name": "REDIS_HOST",
+        "value": "redis"
+      },
+      {
+        "name": "REDIS_PORT",
+        "value": "6379"
+      },
+      {
+        "name": "REDIS_USER",
+        "value": "default"
+      },
+      {
+        "name": "REDIS_PASSWORD",
+        "value": "${REDIS_PASSWORD}"
+      },
+      {
+        "name": "CACHE_DIR",
+        "value": "/tmp/screenshot_cache"
       }
-    ]
+    ],
+    "command": "./start.sh api",
+    "healthcheck": {
+      "test": ["CMD", "curl", "-f", "http://localhost:8000/health"],
+      "interval": "30s",
+      "timeout": "10s",
+      "retries": 3,
+      "start_period": "40s"
+    }
   }
 }
