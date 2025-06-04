@@ -25,8 +25,10 @@ services:
       - REDIS_USER=default
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - CACHE_DIR=/tmp/screenshot_cache
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
     volumes:
       - ./screenshot_cache:/tmp/screenshot_cache
+      - playwright_browsers:/ms-playwright
     depends_on:
       - redis
     networks:
@@ -43,8 +45,10 @@ services:
       - REDIS_USER=default
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - CACHE_DIR=/tmp/screenshot_cache
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
     volumes:
       - ./screenshot_cache:/tmp/screenshot_cache
+      - playwright_browsers:/ms-playwright
     depends_on:
       - redis
     networks:
@@ -58,6 +62,7 @@ networks:
 volumes:
   redis_data:
   screenshot_cache:
+  playwright_browsers:
 
 secrets:
   redis_password:
