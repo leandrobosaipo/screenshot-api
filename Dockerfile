@@ -18,16 +18,18 @@ RUN wget -qO- https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
+# Configura o diretório do Playwright e instala os navegadores
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+RUN mkdir -p /ms-playwright && \
+    playwright install --with-deps chromium && \
+    playwright install --with-deps firefox && \
+    playwright install --with-deps webkit
+
 # Copia os arquivos de requisitos primeiro para aproveitar o cache do Docker
 COPY requirements.txt .
 
 # Instala as dependências Python
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Instala o Playwright e seus navegadores
-RUN playwright install --with-deps chromium
-RUN playwright install --with-deps firefox
-RUN playwright install --with-deps webkit
 
 # Copia o resto do código
 COPY . .
