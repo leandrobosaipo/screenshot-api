@@ -18,6 +18,9 @@ RUN wget -qO- https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
+# Instala o Playwright CLI via npm
+RUN npm install -g playwright
+
 # Configura o diretório do Playwright e instala os navegadores
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 RUN mkdir -p /ms-playwright && \
