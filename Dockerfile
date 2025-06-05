@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     netcat-traditional \
     redis-tools \
     curl \
+    file \
     && rm -rf /var/lib/apt/lists/*
 
 # Define o diretório de trabalho
