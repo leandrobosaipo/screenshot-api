@@ -24,9 +24,9 @@ RUN npm install -g playwright
 # Configura o diretório do Playwright e instala os navegadores
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 RUN mkdir -p /ms-playwright && \
-    playwright install --with-deps chromium && \
-    playwright install --with-deps firefox && \
-    playwright install --with-deps webkit
+    npx playwright install --with-deps chromium && \
+    npx playwright install --with-deps firefox && \
+    npx playwright install --with-deps webkit
 
 # Cria usuário playwright com UID 1000
 RUN groupadd -g 1000 playwright && \
