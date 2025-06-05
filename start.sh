@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Debug info
+echo "=== Debug Info ==="
+whoami
+id
+ls -la /app/start.sh
+echo "Início do script funcionando"
+echo "================="
+
 # Função para log
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
