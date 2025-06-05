@@ -32,7 +32,6 @@ setup_cache_dir() {
         mkdir -p "$CACHE_DIR"
     fi
     chmod 777 "$CACHE_DIR"
-    chown -R nobody:nogroup "$CACHE_DIR"
     log "Diretório de cache configurado com sucesso"
 }
 
