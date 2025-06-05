@@ -33,9 +33,9 @@ RUN groupadd -g 1000 playwright && \
     useradd -u 1000 -g playwright -m playwright
 
 # Copia o script de inicialização antes para garantir permissões
-COPY start.sh /start.sh
-RUN chmod +x /start.sh && \
-    chown playwright:playwright /start.sh
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh && \
+    chown playwright:playwright /app/start.sh
 
 # Copia requirements e instala dependências Python
 COPY requirements.txt .
@@ -67,4 +67,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 USER playwright
 
 # Comando padrão
-CMD ["./start.sh", "api"] 
+CMD ["/app/start.sh", "api"] 
