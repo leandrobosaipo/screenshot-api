@@ -8,6 +8,19 @@ ls -la /app/start.sh
 echo "Início do script funcionando"
 echo "================="
 
+# Validação do Playwright
+echo "=== Playwright Validation ==="
+echo "PLAYWRIGHT_BROWSERS_PATH: $PLAYWRIGHT_BROWSERS_PATH"
+ls -la $PLAYWRIGHT_BROWSERS_PATH
+if [ -f "$PLAYWRIGHT_BROWSERS_PATH/chromium-*/chrome-linux/chrome" ]; then
+    echo "✅ Chromium encontrado"
+else
+    echo "❌ Chromium não encontrado"
+    echo "Instalando navegadores..."
+    npx playwright install --with-deps
+fi
+echo "================="
+
 # Função para log
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"

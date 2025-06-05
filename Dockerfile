@@ -18,16 +18,6 @@ RUN wget -qO- https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Instala o Playwright CLI via npm
-RUN npm install -g playwright
-
-# Configura o diretório do Playwright e instala os navegadores
-ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-RUN mkdir -p /ms-playwright && \
-    npx playwright install --with-deps chromium && \
-    npx playwright install --with-deps firefox && \
-    npx playwright install --with-deps webkit
-
 # Cria usuário playwright com UID 1000
 RUN groupadd -g 1000 playwright && \
     useradd -u 1000 -g playwright -m playwright
@@ -62,6 +52,17 @@ EXPOSE 8000
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
+
+# Instala e configura o Playwright como último passo
+RUN npm install -g playwright && \
+    npx playwright install --with-deps chromium && \
+    npx playwright install --with-deps firefox && \
+    npx playwright install --with-deps webkit && \
+    # Valida a instalação
+    ls -la /ms-playwright && \
+    file /ms-playwright/chromium-*/chrome-linux/chrome && \
+    # Garante permissões
+    chown -R playwright:playwright /ms-playwright
 
 # Troca para o usuário playwright
 USER playwright
