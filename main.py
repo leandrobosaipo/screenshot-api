@@ -21,6 +21,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Exporta a app FastAPI e o celery_app
 app = FastAPI(
     title="Screenshot API",
     description="API para capturar screenshots de websites",

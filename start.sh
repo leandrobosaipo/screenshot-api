@@ -1,92 +1,72 @@
 #!/bin/bash
+set -e
+
+export PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 # Debug info
 echo "=== Debug Info ==="
 whoami
 id
 ls -la /app/start.sh
-echo "Início do script funcionando"
+echo "SERVICO: $SERVICO"
+echo "PLAYWRIGHT_BROWSERS_PATH: $PLAYWRIGHT_BROWSERS_PATH"
 echo "================="
 
 # Validação do Playwright
 echo "=== Playwright Validation ==="
 echo "PLAYWRIGHT_BROWSERS_PATH: $PLAYWRIGHT_BROWSERS_PATH"
 ls -la $PLAYWRIGHT_BROWSERS_PATH
-if [ -f "$PLAYWRIGHT_BROWSERS_PATH/chromium-*/chrome-linux/chrome" ]; then
-    echo "✅ Chromium encontrado"
-else
-    echo "❌ Chromium não encontrado"
-    echo "Instalando navegadores..."
+if ! find "$PLAYWRIGHT_BROWSERS_PATH" -type f -name "chrome" | grep -q chrome; then
+    echo "🛠 Instalando navegadores do Playwright..."
     npx playwright install --with-deps
+else
+    echo "✅ Navegadores já instalados."
 fi
 echo "================="
 
 # Função para log
 log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
 }
 
 # Função para verificar se o Redis está disponível
 wait_for_redis() {
-    log "Aguardando Redis em $REDIS_HOST:$REDIS_PORT..."
-    local max_retries=30
-    local retry_count=0
-    
-    while [ $retry_count -lt $max_retries ]; do
-        if nc -z $REDIS_HOST $REDIS_PORT; then
-            log "Redis está disponível!"
-            return 0
-        fi
-        log "Redis não está disponível - tentativa $((retry_count + 1)) de $max_retries"
-        sleep 2
-        retry_count=$((retry_count + 1))
+    log "Aguardando Redis em ${REDIS_HOST}:${REDIS_PORT}..."
+    while ! nc -z ${REDIS_HOST} ${REDIS_PORT}; do
+        sleep 1
     done
-    
-    log "ERRO: Não foi possível conectar ao Redis após $max_retries tentativas"
-    return 1
+    log "Redis está disponível!"
 }
 
-# Função para configurar o diretório de cache
-setup_cache_dir() {
-    log "Configurando diretório de cache em $CACHE_DIR"
-    if [ ! -d "$CACHE_DIR" ]; then
-        mkdir -p "$CACHE_DIR"
-    fi
-    chmod 777 "$CACHE_DIR"
-    log "Diretório de cache configurado com sucesso"
+# Função para iniciar o Celery Worker
+start_celery() {
+    log "Iniciando Celery Worker..."
+    celery -A main.celery_app worker --loglevel=info
 }
 
-# Função para iniciar o worker do Celery
-start_celery_worker() {
-    log "Iniciando worker do Celery..."
-    celery -A celery_config worker --loglevel=info
+# Função para iniciar o FastAPI
+start_api() {
+    log "Iniciando FastAPI..."
+    uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 }
 
-# Função para iniciar a API FastAPI
-start_fastapi() {
-    log "Iniciando API FastAPI..."
-    uvicorn main:app --host 0.0.0.0 --port 8000 --log-level info
-}
+# Verifica se o Redis está disponível
+wait_for_redis
 
-# Verificar se o Redis está disponível
-if ! wait_for_redis; then
-    log "ERRO: Falha ao conectar ao Redis. Encerrando..."
-    exit 1
-fi
+# Cria diretório de cache se não existir
+mkdir -p ${CACHE_DIR}
+chmod 777 ${CACHE_DIR}
 
-# Configurar diretório de cache
-setup_cache_dir
-
-# Determinar qual serviço iniciar baseado no argumento
-case "$1" in
-    "worker")
-        start_celery_worker
+# Inicia o serviço apropriado baseado na variável SERVICO
+case "${SERVICO}" in
+    "celery")
+        start_celery
         ;;
     "api")
-        start_fastapi
+        start_api
         ;;
     *)
-        log "ERRO: Uso inválido. Uso correto: $0 {worker|api}"
+        log "ERRO: Variável SERVICO não definida ou inválida. Use 'api' ou 'celery'."
         exit 1
         ;;
 esac 
