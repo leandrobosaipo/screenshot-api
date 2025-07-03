@@ -14,11 +14,6 @@ RUN apt-get update && apt-get install -y \
 # Define o diretório de trabalho
 WORKDIR /app
 
-# Instala o Node.js (necessário para o Playwright)
-RUN wget -qO- https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
-
 # Cria usuário playwright com UID 1000
 RUN groupadd -g 1000 playwright && \
     useradd -u 1000 -g playwright -m playwright
@@ -54,16 +49,8 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Instala e configura o Playwright como último passo
-RUN npm install -g playwright && \
-    npx playwright install --with-deps chromium && \
-    npx playwright install --with-deps firefox && \
-    npx playwright install --with-deps webkit && \
-    # Valida a instalação
-    ls -la /ms-playwright && \
-    file /ms-playwright/chromium-*/chrome-linux/chrome && \
-    # Garante permissões
-    chown -R playwright:playwright /ms-playwright
+# Instala navegadores do Playwright Python após instalar dependências Python
+RUN python -m playwright install --with-deps
 
 # Troca para o usuário playwright
 USER playwright
