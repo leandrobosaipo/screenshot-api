@@ -1,9 +1,13 @@
 #!/bin/bash
 set -e
 
-# Ajusta permissões do cache se for root
+# Ajusta permissões do cache
 if [ "$(id -u)" = "0" ]; then
-  chown -R playwright:playwright /tmp/screenshot_cache
+  chown -R playwright:playwright /tmp/screenshot_cache || true
+  chmod -R 770 /tmp/screenshot_cache || true
+else
+  # Se não for root, tenta garantir permissão de escrita para todos (último recurso)
+  chmod -R a+rwX /tmp/screenshot_cache || true
 fi
 
 export PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
