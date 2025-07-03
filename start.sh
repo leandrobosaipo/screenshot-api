@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+# Ajusta permissões do cache se for root
+if [ "$(id -u)" = "0" ]; then
+  chown -R playwright:playwright /tmp/screenshot_cache
+fi
+
 export PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 # Debug info
