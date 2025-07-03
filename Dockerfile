@@ -56,7 +56,4 @@ RUN python -m playwright install --with-deps
 USER playwright
 
 # Comando padrão
-CMD ["bash", "/app/start.sh", "api"]
-
-# Define volume para os navegadores do Playwright
-VOLUME ["/ms-playwright"] 
+CMD ["bash", "/app/start.sh", "api"] 
